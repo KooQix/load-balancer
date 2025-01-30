@@ -1,8 +1,8 @@
 # Load balancer
 
-Load balancer using Go, Prometheus and Grafana. The load balancer uses a round-robin algorithm to distribute the requests among the servers. It implements request limiting to ensure the number of requests per server is not reached. It also collects metrics and exposes them to Prometheus.
+Load balancer using Go, Prometheus, and Grafana. The load balancer uses a round-robin algorithm to distribute the requests among the servers. It implements request limiting to ensure the number of requests per server is not reached. It also collects metrics and exposes them to Prometheus.
 
-To distribute the requests, the load balancer uses a list of servers stored in a database, and creates an optimized weighted round-robin queue (eg based on rate limits, creates a queue with the optimal size. The number of occurrences of each server in the queue is proportional to its rate limit). If all the servers have the same rate limit, the queue will be a simple round-robin queue.
+To distribute the requests, the load balancer uses a list of servers stored in a database and creates an optimized weighted round-robin queue (eg based on rate limits, creates a queue with the optimal size. The number of occurrences of each server in the queue is proportional to its rate limit). If all the servers have the same rate limit, the queue will be a simple round-robin queue.
 
 It does not route to inactive servers, but performs health check to verify if the server is active again.
 
