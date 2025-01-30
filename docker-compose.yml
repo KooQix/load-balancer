@@ -1,0 +1,87 @@
+services:
+    loadbalancer:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: loadbalancer
+        ports:
+            - "8000:8000" # Main application port
+        env_file:
+            - .env
+        environment:
+            - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable&search_path=loadbalancer
+        networks:
+            - loadbalancer-network
+        depends_on:
+            # - redis
+            - postgres
+        restart: unless-stopped
+
+    prometheus:
+        image: prom/prometheus:latest
+        container_name: prometheus
+        ports:
+            - "9091:9090"
+        volumes:
+            - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+            - prometheus_data:/prometheus
+        command:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+            - "--web.console.libraries=/etc/prometheus/console_libraries"
+            - "--web.console.templates=/etc/prometheus/consoles"
+            - "--web.enable-lifecycle"
+        networks:
+            - loadbalancer-network
+        restart: unless-stopped
+
+    grafana:
+        image: grafana/grafana:latest
+        container_name: grafana
+        ports:
+            - "3000:3000"
+        volumes:
+            - grafana_data:/var/lib/grafana
+            - ./grafana/provisioning:/etc/grafana/provisioning
+        env_file:
+            - .env
+        networks:
+            - loadbalancer-network
+        depends_on:
+            - prometheus
+        restart: unless-stopped
+
+    # redis:
+    #     image: redis:alpine
+    #     container_name: redis
+    #     ports:
+    #         - "6379:6379"
+    #     volumes:
+    #         - redis_data:/data
+    #     networks:
+    #         - loadbalancer-network
+    #     restart: unless-stopped
+
+    postgres:
+        image: postgres:15-alpine
+        container_name: postgres
+        ports:
+            - "5432:5432"
+        env_file:
+            - .env
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+            - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+        networks:
+            - loadbalancer-network
+        restart: unless-stopped
+
+networks:
+    loadbalancer-network:
+        driver: bridge
+
+volumes:
+    prometheus_data:
+    grafana_data:
+    redis_data:
+    postgres_data:

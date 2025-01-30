@@ -1,0 +1,21 @@
+{
+	"healthCheck": {
+		"interval": {
+			"unit": "hour",
+			"value": 24
+		},
+		"request": {
+			"method": "POST",
+			"body": {
+				"jsonrpc": "2.0",
+				"id": 1,
+				"method": "getLatestBlockhash",
+				"params": [
+					{
+						"commitment": "processed"
+					}
+				]
+			}
+		}
+	}
+}
