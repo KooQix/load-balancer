@@ -6,6 +6,9 @@ scrape_configs:
     - job_name: "loadbalancer"
       static_configs:
           - targets: ["loadbalancer:8000"]
+      authorization:
+          type: "Bearer"
+          credentials: "key" # Replace "key" with your actual API key
 
     - job_name: "prometheus"
       static_configs:

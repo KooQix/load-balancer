@@ -3,12 +3,13 @@ package main
 import (
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // auth is a middleware that checks if the request has a valid API key
 
 func auth(next http.HandlerFunc)  http.HandlerFunc{
-	// API key can be set as query parameter "key" or in the headers "X-API-KEY"
+	// API key can be set as query parameter "key" or in the headers "Authorization"
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		// Get query parameters
@@ -31,7 +32,13 @@ func auth(next http.HandlerFunc)  http.HandlerFunc{
 			r.URL.RawQuery = queryParams.Encode()
 		} else {
 			// Check if the API key is in the headers
-			if apiKey := r.Header.Get("X-API-KEY"); apiKey != API_KEY {
+			authKey := strings.Split(r.Header.Get("Authorization"), " ")
+			if len(authKey) != 2 || authKey[0] != "Bearer" {
+				http.Error(w, "Invalid API key", http.StatusUnauthorized)
+				return
+			}
+
+			if authKey[1] != API_KEY {
 				http.Error(w, "Invalid API key", http.StatusUnauthorized)
 				return
 			}
@@ -48,7 +55,13 @@ func authAdmin(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		
 		// Check if the API key is in the headers
-		if apiKey := r.Header.Get("X-API-KEY"); apiKey != ADMIN_API_KEY {
+		authKey := strings.Split(r.Header.Get("Authorization"), " ")
+		if len(authKey) != 2 || authKey[0] != "Bearer" {
+			http.Error(w, "Invalid API key", http.StatusUnauthorized)
+			return
+		}
+
+		if authKey[1] != ADMIN_API_KEY {
 			http.Error(w, "Invalid API key", http.StatusUnauthorized)
 			return
 		}

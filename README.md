@@ -61,7 +61,9 @@ cp .env.example .env
 
 3. Update the ports in the `docker-compose.yml` file if necessary.
 
-4. Set your server name to the `nginx.conf` file and copy it to the `nginx/conf.d` directory (update the port if necessary to match the one in the `docker-compose` file). Use Certbot to generate the SSL certificates.
+4. Update the `prometheus/prometheus.yml` file to include the API key to access the Prometheus metrics.
+
+5. Set your server name to the `nginx.conf` file and copy it to the `nginx/conf.d` directory (update the port if necessary to match the one in the `docker-compose` file). Use Certbot to generate the SSL certificates.
 
 # Run
 
